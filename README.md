@@ -23,6 +23,10 @@
 
 ![温度控制](docs/images/lab-temperature.png)
 
+不稳定对象同样跑在同一个内核上——平衡车的角度环每 10 ms 计算一次，跌倒即冻结并给出原因：
+
+![平衡小车](docs/images/lab-robot.png)
+
 达标后冻结本轮并给出真实性能，**不显示任何“标准答案”**：
 
 ![达标结果](docs/images/result-success.png)
@@ -39,6 +43,8 @@ npm run typecheck    # tsc --noEmit（strict）
 npm run build        # 生产构建（渲染层 + 主进程）
 npm run test:e2e     # 构建后驱动真实 Electron 窗口做端到端验收
 npm run dist         # electron-builder 打包（当前平台）
+# 已产出：release-final/PID Lab Simulator Setup 1.0.0.exe（82 MB，未签名）
+# 以及 release-final/win-unpacked/（免安装目录，已用 Playwright 启动验证）
 ```
 
 辅助脚本（开发期校准用，不会打进应用）：

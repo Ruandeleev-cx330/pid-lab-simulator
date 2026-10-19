@@ -73,13 +73,15 @@ $ npm run build && node tests/e2e/electron-smoke.mjs
 $ npx electron-builder --dir
 → release/win-unpacked/                        （免安装目录，约 5 MB asar + Electron 运行时）
 
-$ npx electron-builder --win nsis -c.directories.output=release-installer
-→ release-installer/PID Lab Simulator Setup 1.0.0.exe   （79 MB，未签名，当前最新产物）
-→ release-installer/win-unpacked/PID Lab Simulator.exe  （已用 Playwright 启动验证）
+$ npx electron-builder --win nsis -c.directories.output=release-final
+→ release-final/PID Lab Simulator Setup 1.0.0.exe   （82 MB，未签名，当前最新产物）
+→ release-final/win-unpacked/PID Lab Simulator.exe  （已用 Playwright 启动验证）
 ```
 
 打包后的可执行文件已用 Playwright 直接启动验证：窗口标题 `PID Lab Simulator`，大厅渲染 5 张卡片
 （`artifacts/05-packaged.png`）。已验证开发模式（Vite dev server + Electron）同样可以加载 5 张卡片。
+打包产物与源码一致性检查：进入直流电机/初级，界面显示的「挑战时限 22 s」与达标条件中的
+「扰动恢复」项均来自最新代码（旧产物为 60 s、无扰动项）。
 
 ## 4. 性能实测
 
