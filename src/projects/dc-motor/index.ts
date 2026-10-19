@@ -11,23 +11,24 @@ const beginner: DifficultyPlan = {
   initialRange: [0, 0],
   gainSample: { kp: [0.01, 0.06], ki: [0.02, 0.3], kd: [0, 0.004] },
   disturbance: {
-    label: '负载转矩（可选）',
+    label: '负载转矩',
     unit: 'N·m',
-    magnitude: 0.012,
-    duration: 6,
-    required: false,
-    description: '可选练习：+0.012 N·m 负载转矩，持续 6 s'
+    magnitude: 0.015,
+    duration: 3,
+    autoAt: 12,
+    required: true,
+    description: '+0.015 N·m 负载转矩，第 12 s 自动施加，持续 3 s'
   },
-  timeLimit: 60,
+  timeLimit: 22,
   criteria: {
     toleranceAbs: 5,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 12,
-    maxIAE: 110,
+    maxIAE: 800,
     maxOscillationAmp: 7,
     minRunTime: 5,
-    requireDisturbance: false
+    requireDisturbance: true
   }
 };
 
@@ -46,13 +47,13 @@ const intermediate: DifficultyPlan = {
     required: true,
     description: '+0.018 N·m 负载转矩，持续 8 s'
   },
-  timeLimit: 80,
+  timeLimit: 30,
   criteria: {
     toleranceAbs: 4,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 10,
-    maxIAE: 190,
+    maxIAE: 800,
     maxOscillationAmp: 5,
     minRunTime: 6,
     requireDisturbance: true
@@ -74,13 +75,13 @@ const advanced: DifficultyPlan = {
     required: true,
     description: '+0.026 N·m 负载转矩，持续 10 s'
   },
-  timeLimit: 90,
+  timeLimit: 38,
   criteria: {
     toleranceAbs: 3,
     toleranceRel: 0,
     holdTime: 4,
     maxOvershootPct: 8,
-    maxIAE: 280,
+    maxIAE: 700,
     maxOscillationAmp: 4,
     minRunTime: 6,
     requireDisturbance: true

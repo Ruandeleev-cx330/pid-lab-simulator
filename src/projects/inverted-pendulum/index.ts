@@ -14,20 +14,29 @@ const beginner: DifficultyPlan = {
   description: '摆杆从 2–3.5° 的小偏角开始，用小车水平力把它扶回直立。',
   targetRange: [0, 0],
   initialRange: [2, 3.5],
-  gainSample: { kp: [0.1, 0.42], ki: [0, 0.08], kd: [0.008, 0.05] },
-  disturbance: null,
-  timeLimit: 35,
+  gainSample: { kp: [0.1, 0.26], ki: [0, 0.04], kd: [0.004, 0.016] },
+  disturbance: {
+    label: '水平冲击',
+    unit: 'N',
+    magnitude: 1,
+    duration: 0.2,
+    autoAt: 8,
+    required: true,
+    description: '+1 N 水平冲击，第 12 s 自动施加，持续 0.2 s'
+  },
+  timeLimit: 24,
   criteria: {
     toleranceAbs: 0.8,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 50,
-    maxIAE: 9,
+    maxIAE: 25,
     maxOscillationAmp: 1.6,
     minRunTime: 5,
-    requireDisturbance: false,
+    requireDisturbance: true,
     rateLimit: 1.2,
-    rateTelemetryKey: 'thetaDot'
+    rateTelemetryKey: 'thetaDot',
+    useOvershootGate: false
   }
 };
 
@@ -36,28 +45,29 @@ const intermediate: DifficultyPlan = {
   description: '扶正后施加一次短促的水平冲量，同时小车不能越界。',
   targetRange: [0, 0],
   initialRange: [2.5, 4.5],
-  gainSample: { kp: [0.12, 0.55], ki: [0, 0.12], kd: [0.01, 0.06] },
+  gainSample: { kp: [0.11, 0.3], ki: [0, 0.05], kd: [0.005, 0.018] },
   disturbance: {
     label: '水平冲击',
     unit: 'N',
     magnitude: 3.2,
     duration: 0.28,
-    autoAt: 14,
+    autoAt: 8,
     required: true,
     description: '+3.2 N 水平冲量，持续 0.28 s'
   },
-  timeLimit: 40,
+  timeLimit: 26,
   criteria: {
     toleranceAbs: 0.7,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 55,
-    maxIAE: 11,
+    maxIAE: 30,
     maxOscillationAmp: 1.4,
     minRunTime: 5,
     requireDisturbance: true,
     rateLimit: 1.1,
-    rateTelemetryKey: 'thetaDot'
+    rateTelemetryKey: 'thetaDot',
+    useOvershootGate: false
   }
 };
 
@@ -66,28 +76,29 @@ const advanced: DifficultyPlan = {
   description: '更大的初始偏角与更强的冲击，轨道余量更紧张。',
   targetRange: [0, 0],
   initialRange: [3, 6],
-  gainSample: { kp: [0.14, 0.65], ki: [0, 0.16], kd: [0.012, 0.075] },
+  gainSample: { kp: [0.12, 0.34], ki: [0, 0.06], kd: [0.006, 0.02] },
   disturbance: {
     label: '水平冲击',
     unit: 'N',
     magnitude: 4.5,
     duration: 0.32,
-    autoAt: 14,
+    autoAt: 8,
     required: true,
     description: '+4.5 N 水平冲量，持续 0.32 s'
   },
-  timeLimit: 40,
+  timeLimit: 26,
   criteria: {
     toleranceAbs: 0.6,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 60,
-    maxIAE: 13,
+    maxIAE: 35,
     maxOscillationAmp: 1.2,
     minRunTime: 5,
     requireDisturbance: true,
     rateLimit: 1,
-    rateTelemetryKey: 'thetaDot'
+    rateTelemetryKey: 'thetaDot',
+    useOvershootGate: false
   }
 };
 

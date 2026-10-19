@@ -9,14 +9,15 @@ const beginner: DifficultyPlan = {
   description: '把液位稳定到目标高度，出流随液位非线性变化。',
   targetRange: [0.3, 0.7],
   initialRange: [0.1, 0.3],
-  gainSample: { kp: [0.008, 0.03], ki: [0.0005, 0.0026], kd: [0, 0.06] },
+  gainSample: { kp: [0.1, 0.3], ki: [0.0002, 0.0015], kd: [0.15, 0.6] },
   disturbance: {
-    label: '额外出流（可选）',
+    label: '额外出流',
     unit: 'm³/s',
-    magnitude: 0.008,
-    duration: 8,
-    required: false,
-    description: '可选练习：+0.008 m³/s 额外出流，持续 8 s'
+    magnitude: 0.005,
+    duration: 6,
+    autoAt: 35,
+    required: true,
+    description: '+0.005 m³/s 额外出流，第 35 s 自动施加，持续 6 s'
   },
   timeLimit: 120,
   criteria: {
@@ -24,10 +25,10 @@ const beginner: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 5,
     maxOvershootPct: 15,
-    maxIAE: 9,
+    maxIAE: 55,
     maxOscillationAmp: 0.035,
     minRunTime: 8,
-    requireDisturbance: false
+    requireDisturbance: true
   }
 };
 
@@ -36,7 +37,7 @@ const intermediate: DifficultyPlan = {
   description: '运行中额外打开一条出流支路，需要重新建立流量平衡。',
   targetRange: [0.4, 1.0],
   initialRange: [0.15, 0.4],
-  gainSample: { kp: [0.012, 0.036], ki: [0.0008, 0.003], kd: [0, 0.085] },
+  gainSample: { kp: [0.1, 0.32], ki: [0.0002, 0.0018], kd: [0.15, 0.65] },
   disturbance: {
     label: '额外出流',
     unit: 'm³/s',
@@ -52,7 +53,7 @@ const intermediate: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 5,
     maxOvershootPct: 12,
-    maxIAE: 14,
+    maxIAE: 50,
     maxOscillationAmp: 0.028,
     minRunTime: 8,
     requireDisturbance: true
@@ -64,7 +65,7 @@ const advanced: DifficultyPlan = {
   description: '更大的出流扰动和更严格的液位带，泵流量接近上限。',
   targetRange: [0.5, 1.2],
   initialRange: [0.2, 0.45],
-  gainSample: { kp: [0.015, 0.042], ki: [0.001, 0.0036], kd: [0, 0.1] },
+  gainSample: { kp: [0.12, 0.35], ki: [0.0003, 0.002], kd: [0.18, 0.7] },
   disturbance: {
     label: '额外出流',
     unit: 'm³/s',
@@ -80,7 +81,7 @@ const advanced: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 6,
     maxOvershootPct: 10,
-    maxIAE: 18,
+    maxIAE: 45,
     maxOscillationAmp: 0.022,
     minRunTime: 8,
     requireDisturbance: true

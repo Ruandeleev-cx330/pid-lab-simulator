@@ -49,6 +49,13 @@ export interface SuccessCriteria {
   maxOscillationAmp: number;
   minRunTime: number;
   requireDisturbance: boolean;
+  /**
+   * Whether the overshoot percentage is a hard gate. Tracking plants use it; for
+   * the two inverted-pendulum style plants the spec says a percentage overshoot
+   * around zero is not meaningful, so they gate on peak deviation, settling and
+   * angular rate instead (see `rateLimit`).
+   */
+  useOvershootGate?: boolean;
   /** Optional absolute rate limit (rad/s) checked through telemetry. */
   rateLimit?: number;
   rateTelemetryKey?: string;

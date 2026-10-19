@@ -4,7 +4,7 @@ import { BALANCING_ROBOT_PARAMS, createBalancingRobotPlant, initialBalancingStat
 
 const plant = createBalancingRobotPlant();
 
-const sampleCommon = { kp: [0.14, 0.55] as [number, number], ki: [0, 0.12] as [number, number], kd: [0.012, 0.06] as [number, number] };
+const sampleCommon = { kp: [0.13, 0.3] as [number, number], ki: [0, 0.05] as [number, number], kd: [0.006, 0.02] as [number, number] };
 
 const beginner: DifficultyPlan = {
   label: '初级 · 小角度恢复',
@@ -12,19 +12,28 @@ const beginner: DifficultyPlan = {
   targetRange: [0, 0],
   initialRange: [2, 3.5],
   gainSample: sampleCommon,
-  disturbance: null,
-  timeLimit: 40,
+  disturbance: {
+    label: '侧向推力',
+    unit: 'N·m',
+    magnitude: 0.6,
+    duration: 0.5,
+    autoAt: 8,
+    required: true,
+    description: '+0.6 N·m 侧向推力，第 12 s 自动施加，持续 0.5 s'
+  },
+  timeLimit: 22,
   criteria: {
     toleranceAbs: 0.8,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 50,
-    maxIAE: 9,
+    maxIAE: 25,
     maxOscillationAmp: 1.6,
     minRunTime: 5,
-    requireDisturbance: false,
+    requireDisturbance: true,
     rateLimit: 1.5,
-    rateTelemetryKey: 'omega'
+    rateTelemetryKey: 'omega',
+    useOvershootGate: false
   }
 };
 
@@ -33,7 +42,7 @@ const intermediate: DifficultyPlan = {
   description: '恢复直立后需要抵抗一次短促的外力扰动。',
   targetRange: [0, 0],
   initialRange: [2.5, 4.5],
-  gainSample: { kp: [0.16, 0.7], ki: [0, 0.18], kd: [0.014, 0.075] },
+  gainSample: { kp: [0.14, 0.34], ki: [0, 0.06], kd: [0.006, 0.022] },
   disturbance: {
     label: '侧向推力',
     unit: 'N·m',
@@ -43,18 +52,19 @@ const intermediate: DifficultyPlan = {
     required: true,
     description: '+1.1 N·m 外力矩，持续 0.8 s'
   },
-  timeLimit: 45,
+  timeLimit: 24,
   criteria: {
     toleranceAbs: 0.7,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 55,
-    maxIAE: 11,
+    maxIAE: 30,
     maxOscillationAmp: 1.4,
     minRunTime: 5,
     requireDisturbance: true,
     rateLimit: 1.4,
-    rateTelemetryKey: 'omega'
+    rateTelemetryKey: 'omega',
+    useOvershootGate: false
   }
 };
 
@@ -63,7 +73,7 @@ const advanced: DifficultyPlan = {
   description: '更大的初始倾角与更强的推力，恢复窗口更短。',
   targetRange: [0, 0],
   initialRange: [3, 6],
-  gainSample: { kp: [0.18, 0.8], ki: [0, 0.25], kd: [0.016, 0.09] },
+  gainSample: { kp: [0.15, 0.38], ki: [0, 0.07], kd: [0.007, 0.024] },
   disturbance: {
     label: '侧向推力',
     unit: 'N·m',
@@ -73,18 +83,19 @@ const advanced: DifficultyPlan = {
     required: true,
     description: '+1.6 N·m 外力矩，持续 0.9 s'
   },
-  timeLimit: 45,
+  timeLimit: 24,
   criteria: {
     toleranceAbs: 0.6,
     toleranceRel: 0,
     holdTime: 3,
     maxOvershootPct: 60,
-    maxIAE: 13,
+    maxIAE: 35,
     maxOscillationAmp: 1.2,
     minRunTime: 5,
     requireDisturbance: true,
     rateLimit: 1.2,
-    rateTelemetryKey: 'omega'
+    rateTelemetryKey: 'omega',
+    useOvershootGate: false
   }
 };
 

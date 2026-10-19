@@ -1,4 +1,5 @@
 import type { PidGains } from '../controllers/pid-controller';
+import { TIMEOUT_REASON } from '../projects/adapter';
 import type { MetricsSnapshot } from '../metrics/tracker';
 import type { ChallengeInstance, ProjectAdapter } from '../projects/types';
 
@@ -10,6 +11,8 @@ export interface SimulationOutcome {
   detail: string;
   /** True when the round was still running when the horizon was reached. */
   reachedHorizon: boolean;
+  /** A monotonic gate (overshoot / IAE) was violated, so the round is unwinnable. */
+  permanentlyBlocked: boolean;
   metrics: MetricsSnapshot | null;
 }
 
@@ -42,6 +45,7 @@ export function simulateChallenge(
     options.applyDisturbanceAt ?? challenge.disturbance?.autoAt ?? Number.POSITIVE_INFINITY;
 
   let applied = false;
+  let permanentlyBlocked = false;
   let lastReason = '运行中';
   let lastDetail = '';
   let steps = 0;
@@ -57,6 +61,7 @@ export function simulateChallenge(
         reason: '数值故障',
         detail: engine.getFault()?.message ?? '',
         reachedHorizon: false,
+        permanentlyBlocked,
         metrics: engine.view().metrics
       };
     }
@@ -77,6 +82,7 @@ export function simulateChallenge(
       const verdict = project.evaluate(view, safety, challenge);
       lastReason = verdict.reason;
       lastDetail = verdict.detail;
+      if (verdict.permanent) permanentlyBlocked = true;
       if (verdict.status === 'success') {
         return {
           status: 'success',
@@ -84,6 +90,20 @@ export function simulateChallenge(
           reason: verdict.reason,
           detail: verdict.detail,
           reachedHorizon: false,
+          permanentlyBlocked,
+          metrics: view.metrics
+        };
+      }
+      if (verdict.status === 'failed' && verdict.reason === TIMEOUT_REASON) {
+        // The last step can cross the horizon by a float epsilon; that is the
+        // normal end of a round, not a fault.
+        return {
+          status: 'timeout',
+          time: engine.getTime(),
+          reason: lastReason,
+          detail: lastDetail,
+          reachedHorizon: true,
+          permanentlyBlocked,
           metrics: view.metrics
         };
       }
@@ -94,6 +114,7 @@ export function simulateChallenge(
           reason: verdict.reason,
           detail: verdict.detail,
           reachedHorizon: false,
+          permanentlyBlocked,
           metrics: view.metrics
         };
       }
@@ -106,6 +127,7 @@ export function simulateChallenge(
     reason: lastReason,
     detail: lastDetail,
     reachedHorizon: true,
+    permanentlyBlocked,
     metrics: engine.view().metrics
   };
 }

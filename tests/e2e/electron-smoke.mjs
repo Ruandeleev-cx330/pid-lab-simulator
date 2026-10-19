@@ -31,13 +31,19 @@ async function readTime(win) {
 // A fresh profile per run avoids Chromium singleton-lock collisions between runs.
 const userDataDir = await mkdtemp(path.join(os.tmpdir(), 'pidlab-e2e-'));
 
-async function launchWithRetry(attempts = 4) {
+// IDE / agent shells sometimes export ELECTRON_RUN_AS_NODE=1, which makes the
+// Electron binary behave as plain Node (require('electron') returns a path).
+const childEnv = { ...process.env, VITE_DEV_SERVER_URL: '', NODE_ENV: 'production', PIDLAB_SAFE_MODE: '1' };
+delete childEnv.ELECTRON_RUN_AS_NODE;
+delete childEnv.ELECTRON_NO_ATTACH_CONSOLE;
+
+async function launchWithRetry(attempts = 3) {
   let lastError;
   for (let i = 0; i < attempts; i += 1) {
     try {
       return await electron.launch({
         args: ['.', '--no-sandbox', '--safe-mode', `--user-data-dir=${userDataDir}-${i}`],
-        env: { ...process.env, VITE_DEV_SERVER_URL: '', NODE_ENV: 'production', PIDLAB_SAFE_MODE: '1' },
+        env: childEnv,
         timeout: 45000
       });
     } catch (error) {

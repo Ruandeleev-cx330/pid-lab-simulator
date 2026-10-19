@@ -24,7 +24,7 @@ const beginner: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 10,
     maxOvershootPct: 14,
-    maxIAE: 1100,
+    maxIAE: 4000,
     maxOscillationAmp: 1.8,
     minRunTime: 25,
     requireDisturbance: false
@@ -52,7 +52,7 @@ const intermediate: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 10,
     maxOvershootPct: 11,
-    maxIAE: 2500,
+    maxIAE: 7000,
     maxOscillationAmp: 1.4,
     minRunTime: 30,
     requireDisturbance: true
@@ -80,7 +80,7 @@ const advanced: DifficultyPlan = {
     toleranceRel: 0,
     holdTime: 12,
     maxOvershootPct: 8,
-    maxIAE: 3800,
+    maxIAE: 8000,
     maxOscillationAmp: 1.2,
     minRunTime: 30,
     requireDisturbance: true

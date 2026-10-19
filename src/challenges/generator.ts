@@ -44,6 +44,12 @@ export function generateChallenge(
   const plan = project.plans[difficulty];
   const limits = project.gainLimits;
   const diagnostics: string[] = [];
+  /**
+   * A starting point that already satisfies the criteria is a weak round, but the
+   * spec only asks for "usually not yet optimal" - so it is kept as a last resort
+   * instead of making generation fail on plants that stabilise within seconds.
+   */
+  let weakFallback: ChallengeInstance | null = null;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const rng = createRng(deriveSeed(seed, attempt));
@@ -107,11 +113,25 @@ export function generateChallenge(
     // --- 3. the starting gains must not already solve the challenge --------
     const initial = simulateChallenge(project, challenge, gains, { horizon: challenge.timeLimit });
     if (initial.status === 'success') {
-      diagnostics.push(`#${attempt} 初始参数已经直接达标，重新抽样`);
+      diagnostics.push(`#${attempt} 初始参数已经直接达标，作为兜底候选`);
+      if (!weakFallback) weakFallback = challenge;
+      continue;
+    }
+    if (initial.permanentlyBlocked) {
+      diagnostics.push(`#${attempt} 初始参数已触发单调门槛（${initial.reason}），本轮必然无法达标`);
+      continue;
+    }
+    if (initial.status === 'failed') {
+      diagnostics.push(`#${attempt} 初始参数在 ${initial.time.toFixed(1)}s 失稳（${initial.reason}）`);
       continue;
     }
 
     return challenge;
+  }
+
+  if (weakFallback) {
+    diagnostics.push('没有找到更有挑战性的初值，返回兜底候选（初始参数已可达标）');
+    return weakFallback;
   }
 
   throw new ChallengeGenerationError(

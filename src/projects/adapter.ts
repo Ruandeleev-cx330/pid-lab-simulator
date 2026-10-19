@@ -5,6 +5,9 @@ import type { ChallengeInstance, ProjectAdapter, ProjectSpec, SuccessCriteria, V
 
 export const CONFIG_VERSION = '1.0.0';
 
+/** Verdict reason used when the round ran out of time (not an unrecoverable fault). */
+export const TIMEOUT_REASON = '超过挑战时限';
+
 const fail = (reason: string, detail: string): Verdict => ({ status: 'failed', reason, detail });
 const running = (reason: string, detail: string, permanent = false): Verdict => ({
   status: 'running',
@@ -35,7 +38,7 @@ export function evaluateVerdict(
 
   if (m.time > timeLimit) {
     const blocker =
-      m.overshootPct > criteria.maxOvershootPct
+      criteria.useOvershootGate !== false && m.overshootPct > criteria.maxOvershootPct
         ? '超调超限'
         : m.iae > criteria.maxIAE
           ? '累计误差超限'
@@ -44,7 +47,7 @@ export function evaluateVerdict(
             : m.dwellTime < criteria.holdTime
               ? '未在时限内稳定'
               : '状态条件未满足';
-    return fail('超过挑战时限', `仿真时间超过 ${timeLimit.toFixed(0)} s 仍未达标（${blocker}）`);
+    return fail(TIMEOUT_REASON, `仿真时间超过 ${timeLimit.toFixed(0)} s 仍未达标（${blocker}）`);
   }
 
   if (m.time < criteria.minRunTime) {
@@ -54,7 +57,7 @@ export function evaluateVerdict(
   // Overshoot and IAE are monotonic: once the budget is exhausted this round can
   // no longer succeed. The simulation keeps running so the user can see what is
   // happening, but the verdict carries `permanent`.
-  if (m.overshootPct > criteria.maxOvershootPct) {
+  if (criteria.useOvershootGate !== false && m.overshootPct > criteria.maxOvershootPct) {
     return running(
       '超调超限',
       `超调 ${m.overshootPct.toFixed(1)}% 超过上限 ${criteria.maxOvershootPct.toFixed(0)}%，本轮已无法达标，可重置后调整参数`,
@@ -151,13 +154,17 @@ export function buildChecklist(
       ok: m.dwellTime >= criteria.holdTime,
       detail: `${m.dwellTime.toFixed(1)} / ${criteria.holdTime.toFixed(1)} s`
     },
-    {
-      key: 'overshoot',
-      label: '超调',
-      ok: m.overshootPct <= criteria.maxOvershootPct,
-      blocked: m.overshootPct > criteria.maxOvershootPct,
-      detail: `${m.overshootPct.toFixed(1)}% / ≤${criteria.maxOvershootPct.toFixed(0)}%`
-    },
+    ...(criteria.useOvershootGate === false
+      ? []
+      : [
+          {
+            key: 'overshoot',
+            label: '超调',
+            ok: m.overshootPct <= criteria.maxOvershootPct,
+            blocked: m.overshootPct > criteria.maxOvershootPct,
+            detail: `${m.overshootPct.toFixed(1)}% / ≤${criteria.maxOvershootPct.toFixed(0)}%`
+          }
+        ]),
     {
       key: 'iae',
       label: 'IAE',
