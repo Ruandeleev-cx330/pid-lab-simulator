@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-electron/
+release/
+release-nsis/
+release-installer/
+
+# test / screenshot output
+artifacts/
+coverage/
+
+# tooling
+.workbuddy/
+vite.config.ts.timestamp-*
+*.log
+.DS_Store
+.vite/
