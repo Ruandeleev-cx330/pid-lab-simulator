@@ -9,7 +9,23 @@
 - 每轮生成前用真实仿真做**可解性验证**（内部参考策略必须能达标）
 - 达标条件全部公开、由实时数据计算，不提供唯一“标准答案”
 
-技术栈：Electron + React 18 + TypeScript（strict）+ Vite + Vitest + Playwright(_electron)。
+技术栈：Electron 33 + React 18 + TypeScript（strict）+ Vite 5 + Vitest + Playwright(_electron)。
+
+![项目大厅](docs/images/lobby.png)
+
+## 实验室界面
+
+左：项目与实时状态 · 中：状态驱动的对象动画 + 响应曲线 · 右：PID 面板与仿真控制 · 底：达标条件与指标。
+
+![直流电机实验](docs/images/lab-motor.png)
+
+曲线、动画、指标来自同一个采样流；底部「达标条件」条实时显示每一项的当前值与阈值。
+
+![温度控制](docs/images/lab-temperature.png)
+
+达标后冻结本轮并给出真实性能，**不显示任何“标准答案”**：
+
+![达标结果](docs/images/result-success.png)
 
 ---
 
@@ -18,12 +34,20 @@
 ```bash
 npm install          # 安装依赖
 npm run dev          # 开发模式（Vite + Electron 热更新）
-npm test             # 115 个单元 / 物理 / 集成 / 组件测试
+npm test             # 129 个单元 / 物理 / 集成 / 组件测试
 npm run typecheck    # tsc --noEmit（strict）
 npm run build        # 生产构建（渲染层 + 主进程）
-npm run test:e2e     # 构建后驱动真实 Electron 窗口做端到端冒烟
+npm run test:e2e     # 构建后驱动真实 Electron 窗口做端到端验收
 npm run dist         # electron-builder 打包（当前平台）
-# 已产出：release-installer/PID Lab Simulator Setup 1.0.0.exe（79 MB，未签名）
+```
+
+辅助脚本（开发期校准用，不会打进应用）：
+
+```bash
+npx vite-node scripts/tune.ts         # 检查/搜索内部参考策略
+npx vite-node scripts/gen-check.ts    # 多项目多难度批量生成挑战，统计成功率与耗时
+npx vite-node scripts/perf-check.ts   # 每秒物理步数/实时倍率
+npx vite-node scripts/soak-check.ts   # 环形缓冲与内存浸泡测试
 ```
 
 > **受限环境说明**：部分虚拟化 / 无 GPU 的 Windows 会话无法启动 Chromium 子进程，窗口会空白。
@@ -43,6 +67,7 @@ src/state/          ChallengeSession（状态机 + 调度 + 事件日志）
 src/components/     PID 面板、工具栏、指标条、达标条件条、曲线、结果页
 src/visualization/  5 个由状态驱动的 SVG 动画
 src/persistence/    版本化本地存储（localStorage，损坏自动降级）
+tests/              unit / physics / simulation / challenge / state / ui / persistence / e2e
 docs/               架构、物理模型、PID、挑战生成、验收报告
 ```
 
@@ -72,3 +97,8 @@ docs/               架构、物理模型、PID、挑战生成、验收报告
 - 平衡小车与倒立摆的初始倾角随机区间较小（2–6°），因为更大的初始偏差在给定力矩下不可恢复。
 - 端到端测试依赖真实 Electron 窗口，在 CI 无显示环境下需要 xvfb 或等价方案。
 - 未在 macOS / Linux 上实机验证（构建配置已提供）。
+- 安装包未做代码签名。
+
+## 许可
+
+[MIT](LICENSE)
