@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Electron 的二进制下载与测试无关，跳过 postinstall 可以把 CI 时间压到最低
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Type check (strict)
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit / physics / integration tests
+        run: npx vitest run
+
+  # Electron 端到端测试需要显示器，单独留给有 GUI 的环境（本地 npm run test:e2e）
