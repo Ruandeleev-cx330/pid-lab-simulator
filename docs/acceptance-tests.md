@@ -175,7 +175,20 @@ RSS 由 90 MB 缓慢升至 104 MB（V8 堆预留与 JIT），未发现泄漏型�
 | 持久化经测试 | ✅ | `store.test.ts` 6 个用例（含损坏数据与写入失败） |
 | 异常操作不破坏状态 | ✅ | 非法增益、越界目标、暂停时扰动、终态改参数均被拒绝并提示 |
 
-## 6. 已知限制与未验证项
+## 6. 持续集成
+
+`.github/workflows/ci.yml` 在 Ubuntu + Node 22 上执行
+`npm ci --ignore-scripts → tsc --noEmit → eslint → vitest`，首次推送即已跑通：
+
+| 提交 | 结果 |
+| --- | --- |
+| `41a309a` docs: 截图与 .gitignore | success |
+| `057baad` docs: CHANGELOG | success |
+
+这也顺带证明仓库在 Linux 上可安装、可通过类型检查与全部 129 个测试
+（GUI 与 E2E 仍仅在 Windows 本机验证）。
+
+## 7. 已知限制与未验证项
 
 **已实现但未充分验证**
 
@@ -189,7 +202,7 @@ RSS 由 90 MB 缓慢升至 104 MB（V8 堆预留与 JIT），未发现泄漏型�
 - 安装包未做代码签名（无证书），Windows SmartScreen 可能提示未知发布者。
 - 默认（非兼容）模式在本机受限会话中无法启动 Chromium 渲染进程，因此**所有 E2E 均在 `--safe-mode` 下执行**；
   正常的桌面会话应使用默认模式（GPU 独立进程 + 沙箱）。
-- 未接入 CI；所有验证均为本机手动触发。
+- 端到端测试只在本地 Windows 上跑过（CI 不跑 E2E）。
 
 **环境适配说明**
 
